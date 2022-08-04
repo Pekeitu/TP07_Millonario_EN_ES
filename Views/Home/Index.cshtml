@@ -1,0 +1,38 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="position-absolute vh-100 vw-100 d-flex justify-content-center align-items-center" style="top: 0; left: 0;">
+    <img id="fondo" src="https://store-images.s-microsoft.com/image/apps.29865.14573449505340069.0f503adc-58ce-4d41-a12d-792f97d4a1c0.39c05ae6-8cdd-4ac0-8e1e-bdcf27a95413" style="position: absolute; top: 0; left: 0; height: 100vh; width: 100vw;">
+    <!-- <button type="button" id="btnJugar" class="btn btn-success btn-lg" style="position:absolute; top: 50%; left: 50%; margin-top: 3%; margin-left: -2.5%" onclick="transicion()">Jugar</button> -->
+    <button type="button" id="btnJugar" class="btn btn-success btn-lg position-relative" style="margin-top: 7%; margin-left: -1%;" onclick="transicion()">Jugar</button>
+
+    <form action='@Url.Action("jugar", "Home")' style="display: none;" id="lol">
+        <div class="row g-3 align-items-center" style="background-color: white; opacity: 0.1;">
+            <div class="col-auto">
+                <label for="inputNombre" class="col-form-label">Nombre</label>
+            </div>
+            <div class="col-auto">
+                <input type="password" id="inputPassword6" class="form-control" aria-describedby="passwordHelpInline">
+            </div>
+            <div class="col-auto">
+                <span id="passwordHelpInline" class="form-text">
+                Must be 8-20 characters long.
+                </span>
+            </div>
+        </div>
+    </form>
+
+    <script>
+        function transicion()
+        {
+            //document.getElementById("fondo").src = "https://fotografias.antena3.com/clipping/cmsimages02/2020/01/10/ABE9B428-C9D0-4676-80E0-D1E512848828/57.jpg";
+            $("#btnJugar").css("display", "none");
+            $("#lol").css("display", "inline-block");
+            //$("#btnJugar").fadeOut(function() {});
+            //$("#lol").fadeIn(250, function(){
+                //$("#lol").css("display", "inline-block");
+            //});
+        }
+    </script>
+</div>
