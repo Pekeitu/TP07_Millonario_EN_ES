@@ -18,6 +18,13 @@ public class HomeController : Controller
         return View();
     }
 
+    public IActionResult IniciarJuego(string nombre)
+    {
+        Jugador jug = new Jugador();
+        jug.Nombre = nombre;
+        //TODO: completar
+    }
+
     public IActionResult Privacy()
     {
         return View();

@@ -7,13 +7,13 @@
     <!-- <button type="button" id="btnJugar" class="btn btn-success btn-lg" style="position:absolute; top: 50%; left: 50%; margin-top: 3%; margin-left: -2.5%" onclick="transicion()">Jugar</button> -->
     <button type="button" id="btnJugar" class="btn btn-success btn-lg position-relative" style="margin-top: 7%; margin-left: -1%;" onclick="transicion()">Jugar</button>
 
-    <form action='@Url.Action("jugar", "Home")' style="display: none;" id="lol">
-        <div class="row g-3 align-items-center" style="background-color: white; opacity: 0.1;">
+    <form method="POST" action='@Url.Action("IniciarJuego", "Home")' style="display: none;" id="lol">
+        <div class="row pt-2 pb-2 align-items-center rounded border border-dark" style="background-color: white; opacity: 0.65;">
             <div class="col-auto">
                 <label for="inputNombre" class="col-form-label">Nombre</label>
             </div>
             <div class="col-auto">
-                <input type="password" id="inputPassword6" class="form-control" aria-describedby="passwordHelpInline">
+                <input type="password" name="nombre" class="form-control" aria-describedby="passwordHelpInline">
             </div>
             <div class="col-auto">
                 <span id="passwordHelpInline" class="form-text">
@@ -21,12 +21,18 @@
                 </span>
             </div>
         </div>
+        <div class="row" style="background-color: white; opacity: 0.65">
+            <button type="submit" value="Empezar ahora!">
+        </div>
+        <!-- <div class="row g-3 align-items-center pb-2" style="background-color: white; opacity: 0.5">
+            <button type="submit" value="Empezar ahora!">
+        </div> -->
     </form>
 
     <script>
         function transicion()
         {
-            //document.getElementById("fondo").src = "https://fotografias.antena3.com/clipping/cmsimages02/2020/01/10/ABE9B428-C9D0-4676-80E0-D1E512848828/57.jpg";
+            document.getElementById("fondo").src = "https://fotografias.antena3.com/clipping/cmsimages02/2020/01/10/ABE9B428-C9D0-4676-80E0-D1E512848828/57.jpg";
             $("#btnJugar").css("display", "none");
             $("#lol").css("display", "inline-block");
             //$("#btnJugar").fadeOut(function() {});
