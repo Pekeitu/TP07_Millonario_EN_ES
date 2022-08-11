@@ -23,6 +23,7 @@ public class HomeController : Controller
         Jugador jug = new Jugador();
         jug.Nombre = nombre;
         //TODO: completar
+        return View();
     }
 
     public IActionResult Privacy()

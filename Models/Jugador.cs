@@ -14,9 +14,9 @@ public class Jugador{
         Nombre="";
         FechaHora=DateTime.Parse("0000-00-00 00:00:00");
         PozoGanado=0;
-        ComodinDobleChance=false;
-        Comodin50=false;
-        ComodinSaltear=false;
+        ComodinDobleChance=true;
+        Comodin50=true;
+        ComodinSaltear=true;
     }
     public Jugador(int id, string nom, DateTime fec, int pozGan, bool comDC, bool Com50, bool ComSal){
         IdJugador= id;

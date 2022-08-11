@@ -1,6 +1,6 @@
 namespace TP7.Models;
 
-public class Preguntas{
+public class Pregunta{
     /*private int _idPregunta;
     private string _txtPregunta;
     private int _nivelDificultad;
@@ -17,13 +17,13 @@ public class Preguntas{
     public string txtPregunta {get;}
     public int nivelDificultad{get;}
 
-    public Preguntas(){
+    public Pregunta(){
         IdPregunta=-1;
         txtPregunta= "";
         nivelDificultad=-1;
     }
 
-    public Preguntas(int id, string txtPreg, int nDif){
+    public Pregunta(int id, string txtPreg, int nDif){
         IdPregunta=id;
         txtPregunta = txtPreg;
         nivelDificultad=nDif;
