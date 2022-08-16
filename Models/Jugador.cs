@@ -12,7 +12,7 @@ public class Jugador{
     public Jugador(){
         IdJugador= 0;
         Nombre="";
-        FechaHora=DateTime.Parse("0000-00-00 00:00:00");
+        FechaHora=DateTime.Now;
         PozoGanado=0;
         ComodinDobleChance=true;
         Comodin50=true;

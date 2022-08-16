@@ -18,11 +18,10 @@ public class HomeController : Controller
         return View();
     }
 
+    [HttpPost]
     public IActionResult IniciarJuego(string nombre)
     {
-        Jugador jug = new Jugador();
-        jug.Nombre = nombre;
-        //TODO: completar
+        JuegoQQSM.IniciarJuego(nombre);
         return View();
     }
 

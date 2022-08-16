@@ -18,7 +18,6 @@ static class JuegoQQSM{
     public static void IniciarJuego(string Nombre){
         Player = new Jugador();
         Player.Nombre = Nombre;
-        Player.FechaHora = DateTime.Now;
         using(SqlConnection db = new SqlConnection(_connectionString)){
             string sp = "InicializarPlayer";
             int num= db.Execute(sp, new {Player}, commandType: CommandType.StoredProcedure);
@@ -41,4 +40,13 @@ static class JuegoQQSM{
          return db.Query<Respuesta>(sp, new {PregActual = PreguntaActual}, commandType: CommandType.StoredProcedure).ToList();
         }
     }
+
+    public static List<Pozo> ListarPozo(){
+        return ListaPozo;
+    }
+
+    public static int  devolverPosicionPozo(){
+        return PosicionPozo;
+    }
+    //public 
 }
