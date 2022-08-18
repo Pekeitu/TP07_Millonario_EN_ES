@@ -14,13 +14,13 @@ static class JuegoQQSM{
     private static List<Pozo> ListaPozo = new List<Pozo>();
     private static Jugador Player;
 
-    private static string _connectionString = @"Server=A-phz2-cidi-048\SQL;DataBase=JuegoQQSM;Trusted_Connection=True;";
+    private static string _connectionString = @"Server=A-PHZ2-CIDI-015;DataBase=JuegoQQSM;Trusted_Connection=True;";
     public static void IniciarJuego(string Nombre){
         Player = new Jugador();
         Player.Nombre = Nombre;
         using(SqlConnection db = new SqlConnection(_connectionString)){
-            string sp = "InicializarPlayer";
-            int num= db.Execute(sp, new {Player}, commandType: CommandType.StoredProcedure);
+            string sp = "insertarJugador";
+            int num= db.Execute(sp, new {Nombre = Player.Nombre, FechaHora = Player.FechaHora, PozoGanado = Player.PozoGanado, ComodinDobleChance = Player.ComodinDobleChance, Comodin50 = Player.Comodin50, ComodinSaltear = Player.ComodinSaltear}, commandType: CommandType.StoredProcedure);
         }
     }
     public static Pregunta obtenerProximaPregunta(){

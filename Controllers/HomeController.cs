@@ -22,7 +22,7 @@ public class HomeController : Controller
     public IActionResult IniciarJuego(string nombre)
     {
         JuegoQQSM.IniciarJuego(nombre);
-        return View();
+        return View("Pregunta");
     }
 
     public IActionResult Privacy()
