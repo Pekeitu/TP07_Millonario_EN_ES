@@ -21,7 +21,14 @@ public class HomeController : Controller
     [HttpPost]
     public IActionResult IniciarJuego(string nombre)
     {
-        JuegoQQSM.IniciarJuego(nombre);
+        //Si el jugador no existe, lo creamos en la base de datos
+        Jugador jug = JuegoQQSM.BuscarJugador(nombre);
+        if(jug == null) JuegoQQSM.IniciarJuego(nombre);
+        else ViewBag.Preexistente = true;
+        ViewBag.NombreJugador = jug.Nombre;
+        //ViewBag.Pregunta = JuegoQQSM.obtenerProximaPregunta();
+        //ViewBag.Respuestas = JuegoQQSM.obtenerRespuesta();
+        //ViewBag.ListaPozo = JuegoQQSM.ListarPozo();
         return View("Pregunta");
     }
 

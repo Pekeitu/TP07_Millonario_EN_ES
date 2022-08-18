@@ -14,15 +14,25 @@ static class JuegoQQSM{
     private static List<Pozo> ListaPozo = new List<Pozo>();
     private static Jugador Player;
 
-    private static string _connectionString = @"Server=A-PHZ2-CIDI-015;DataBase=JuegoQQSM;Trusted_Connection=True;";
+    private static string _connectionString = @"Server=A-PHZ2-CIDI-032;DataBase=JuegoQQSM;Trusted_Connection=True;";
     public static void IniciarJuego(string Nombre){
         Player = new Jugador();
         Player.Nombre = Nombre;
         using(SqlConnection db = new SqlConnection(_connectionString)){
             string sp = "insertarJugador";
             int num= db.Execute(sp, new {Nombre = Player.Nombre, FechaHora = Player.FechaHora, PozoGanado = Player.PozoGanado, ComodinDobleChance = Player.ComodinDobleChance, Comodin50 = Player.Comodin50, ComodinSaltear = Player.ComodinSaltear}, commandType: CommandType.StoredProcedure);
+            //int num = db.Execute(sp, new {Player}, commandType: CommandType.StoredProcedure);
         }
     }
+
+    public static Jugador BuscarJugador(string nom) {
+        //la variable jug es utilizada para que, en caso de que no haya un registro en la tabal jugadores con nombre nom, se returne un objeto instanciado y no un objeto sin instanciar
+        using(SqlConnection db = new SqlConnection(_connectionString)) {
+            string sp = "buscarJugador";
+            return db.QueryFirstOrDefault<Jugador>(sp, new {Nombre = nom}, commandType: CommandType.StoredProcedure);
+        }
+    }
+
     public static Pregunta obtenerProximaPregunta(){
         PreguntaActual++;
         using(SqlConnection db = new SqlConnection(_connectionString)){
@@ -33,10 +43,10 @@ static class JuegoQQSM{
 
     public static List<Respuesta> obtenerRespuesta(){
         using(SqlConnection db = new SqlConnection(_connectionString)){
-         string fQuery = "SELECT opcionRespuesta FROM Respuestas WHERE idPregunta = @idpreg AND correcta = 1";
-         RespuestaCorrectaActual = db.QueryFirstOrDefault<char>(fQuery, new {idpreg = PreguntaActual});
-
-         string sp = "obtenerRespuestas";
+         string sp = "obtenerRespuestaCorrecta";
+         RespuestaCorrectaActual = db.QueryFirstOrDefault<char>(sp, new {PregActual = PreguntaActual}, commandType: CommandType.StoredProcedure);
+         
+         sp = "obtenerRespuestas";
          return db.Query<Respuesta>(sp, new {PregActual = PreguntaActual}, commandType: CommandType.StoredProcedure).ToList();
         }
     }
@@ -48,5 +58,10 @@ static class JuegoQQSM{
     public static int  devolverPosicionPozo(){
         return PosicionPozo;
     }
-    //public 
+    /*
+    public static string descartar50(){
+        string[] res; 
+        if(Player.Comodin50 == true) 
+    }
+    */
 }
