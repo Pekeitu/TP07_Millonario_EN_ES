@@ -15,6 +15,7 @@ static class JuegoQQSM{
     private static Jugador Player;
 
     private static string _connectionString = @"Server=A-PHZ2-CIDI-032;DataBase=JuegoQQSM;Trusted_Connection=True;";
+
     public static void IniciarJuego(string Nombre){
         Player = new Jugador();
         Player.Nombre = Nombre;
@@ -36,8 +37,8 @@ static class JuegoQQSM{
     public static Pregunta obtenerProximaPregunta(){
         PreguntaActual++;
         using(SqlConnection db = new SqlConnection(_connectionString)){
-         string sp = "obtenerProximaPregunta";
-         return db.QueryFirstOrDefault<Pregunta>(sp, new {PregActual = PreguntaActual}, commandType: CommandType.StoredProcedure);
+            string sp = "obtenerProximaPregunta";
+            return db.QueryFirstOrDefault<Pregunta>(sp, new {PregActual = PreguntaActual}, commandType: CommandType.StoredProcedure);
         }
     }
 
@@ -58,10 +59,42 @@ static class JuegoQQSM{
     public static int  devolverPosicionPozo(){
         return PosicionPozo;
     }
-    /*
-    public static string descartar50(){
-        string[] res; 
-        if(Player.Comodin50 == true) 
+    
+    public static List<char> descartar50(){
+        if(!Player.Comodin5050) return "";
+        using(SqlConnection db = new SqlConnection(_connectionString)){
+            string sp = "descartar50";
+            int num = db.Execute(sp, new {idJug = Player.idJug}, commandType: CommandType.StoredProcedure);
+        }
+
+        List<Respuesta> respuestasActuales = obtenerRespuesta();
+        int totalBorrados = 0;
+        bool[] dpBorrados = new bool[respuestasActuales.Count];
+        while(totalBorrados<2){
+            Random rnd = new Random();            
+            int rnd_idx = rnd.Next(0, respuestasActuales.Count);
+            if(!respuestasActuales[rnd_idx].correcta && !dpBorrados[rnd_idx]){
+                totalBorrados++;
+                dpBorrados[rnd_idx] = true;
+            }
+         }
+        List<char> ret = new List<char>();
+        for(int i = 0; i < dpBorrados.Length; i++)
+        {
+            if(dpBorrados[i]) ret.add((char)((int)'A' + i)); 
+        }
+        return ret;
     }
-    */
+    public static void SaltearPregunta(){
+        if(!Player.ComodinSaltearPregunta) return;
+        /*FALTA EL SP*/
+        using(SqlConnection db = new SqlConnection(_connectionString)){
+            string sp = "SaltearPregunta";
+            int num = db.Execute(sp, new {idJug = Player.idJug}, commandType: CommandType.StoredProcedure);
+        }
+        
+    }
+
+
+    
 }
