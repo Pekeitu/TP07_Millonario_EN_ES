@@ -13,10 +13,13 @@ static class JuegoQQSM{
     private static bool Comodin5050=true, ComodinDobleChance=true, ComodinSaltearPregunta=true;
     private static List<Pozo> ListaPozo = new List<Pozo>();
     private static Jugador Player;
+    private static List<int> ListaPregRes = new List<int>();
+    private static int DificultadActual;
 
     private static string _connectionString = @"Server=A-PHZ2-CIDI-032;DataBase=JuegoQQSM;Trusted_Connection=True;";
 
     public static void IniciarJuego(string Nombre){
+        DificultadActual = 0;
         Player = new Jugador();
         Player.Nombre = Nombre;
         using(SqlConnection db = new SqlConnection(_connectionString)){
@@ -34,11 +37,29 @@ static class JuegoQQSM{
         }
     }
 
+    private static void obtenerIdPreguntasxDif(int dificultad)
+    {
+        /* USAR SP, listar todas las preguntas que tengan difficultad = x */
+        /* Se iguala directo la lista ListaPregRes al resultado de la query*/
+        return;
+    }
+
     public static Pregunta obtenerProximaPregunta(){
-        PreguntaActual++;
+        if(ListaPregRes.Count == 0)
+        {
+            //Asumimos que ya que estamos aca, el juego no termino. PERO, se acabaron las preguntas de esta dificultad. Cargar siguiente dificultad.
+            DificultadActual++;
+            obtenerIdPreguntasxDif(DificultadActual);
+        }
+        Random rnd = new Random();
+        int idPregunta = ListaPregRes[rnd.Next(0, ListaPregRes.Count)];
+        PreguntaActual = idPregunta;
+        ListaPregRes.Remove(idPregunta);
+
+        /*Modificar SP*/
         using(SqlConnection db = new SqlConnection(_connectionString)){
             string sp = "obtenerProximaPregunta";
-            return db.QueryFirstOrDefault<Pregunta>(sp, new {PregActual = PreguntaActual}, commandType: CommandType.StoredProcedure);
+            return db.QueryFirstOrDefault<Pregunta>(sp, new {IdPregunta = idPregunta}, commandType: CommandType.StoredProcedure);
         }
     }
 
@@ -61,10 +82,10 @@ static class JuegoQQSM{
     }
     
     public static List<char> descartar50(){
-        if(!Player.Comodin5050) return "";
+        if(!Player.Comodin50) return (List<char>)null;
         using(SqlConnection db = new SqlConnection(_connectionString)){
             string sp = "descartar50";
-            int num = db.Execute(sp, new {idJug = Player.idJug}, commandType: CommandType.StoredProcedure);
+            int num = db.Execute(sp, new {idJug = Player.IdJugador}, commandType: CommandType.StoredProcedure);
         }
 
         List<Respuesta> respuestasActuales = obtenerRespuesta();
@@ -77,24 +98,27 @@ static class JuegoQQSM{
                 totalBorrados++;
                 dpBorrados[rnd_idx] = true;
             }
-         }
+        }
+
+        //Conseguir Opciones descartadas
         List<char> ret = new List<char>();
         for(int i = 0; i < dpBorrados.Length; i++)
         {
-            if(dpBorrados[i]) ret.add((char)((int)'A' + i)); 
+            if(dpBorrados[i]) ret.Add((char)((int)'A' + i)); 
         }
         return ret;
     }
     public static void SaltearPregunta(){
-        if(!Player.ComodinSaltearPregunta) return;
+        if(!Player.ComodinSaltear) return;
         /*FALTA EL SP*/
         using(SqlConnection db = new SqlConnection(_connectionString)){
             string sp = "SaltearPregunta";
-            int num = db.Execute(sp, new {idJug = Player.idJug}, commandType: CommandType.StoredProcedure);
+            int num = db.Execute(sp, new {idJug = Player.IdJugador}, commandType: CommandType.StoredProcedure);
         }
-        
+        obtenerProximaPregunta();
+        return;
     }
 
-
+    
     
 }
