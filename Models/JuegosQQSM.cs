@@ -10,13 +10,13 @@ static class JuegoQQSM{
     private static int PosicionPozo;
     private static int PozoAcumuladoSeguro;
     private static int PozoAcumulado;
-    private static bool Comodin5050=true, ComodinDobleChance=true, ComodinSaltearPregunta=true;
+    //private static bool Comodin5050=true, ComodinDobleChance=true, ComodinSaltearPregunta=true;
     private static List<Pozo> ListaPozo = new List<Pozo>();
     private static Jugador Player;
     private static List<int> ListaPregRes = new List<int>();
     private static int DificultadActual;
 
-    private static string _connectionString = @"Server=A-PHZ2-CIDI-032;DataBase=JuegoQQSM;Trusted_Connection=True;";
+    private static string _connectionString = @"Server=A-PHZ2-CIDI-039;DataBase=JuegoQQSM;Trusted_Connection=True;";
 
     public static void IniciarJuego(string Nombre){
         DificultadActual = 0;
@@ -26,6 +26,16 @@ static class JuegoQQSM{
             string sp = "insertarJugador";
             int num= db.Execute(sp, new {Nombre = Player.Nombre, FechaHora = Player.FechaHora, PozoGanado = Player.PozoGanado, ComodinDobleChance = Player.ComodinDobleChance, Comodin50 = Player.Comodin50, ComodinSaltear = Player.ComodinSaltear}, commandType: CommandType.StoredProcedure);
             //int num = db.Execute(sp, new {Player}, commandType: CommandType.StoredProcedure);
+        }
+    }
+
+    public static Jugador UpdateJugador(Jugador jug){
+        Player = jug;
+        DificultadActual = 0;
+        //Seguir
+        using(SqlConnection db = new SqlConnection(_connectionString)){
+            string sp = "UpdateJugador";
+            return db.QueryFirstOrDefault<Jugador>(sp, new {Nombre = jug.Nombre}, commandType: CommandType.StoredProcedure);
         }
     }
 
@@ -39,8 +49,12 @@ static class JuegoQQSM{
 
     private static void obtenerIdPreguntasxDif(int dificultad)
     {
-        /* USAR SP, listar todas las preguntas que tengan difficultad = x */
-        /* Se iguala directo la lista ListaPregRes al resultado de la query*/
+        /* listar todas las preguntas que tengan dificultad = x */
+        /* Se iguala directo la lista ListaPregRes al resultado de la query */
+        using(SqlConnection db = new SqlConnection(_connectionString)) {
+            string sp = "obtenerIdPreguntasxDif";
+            ListaPregRes = db.Query<int>(sp, new {dif = dificultad}, commandType: CommandType.StoredProcedure).ToList();
+        }
         return;
     }
 
@@ -48,11 +62,11 @@ static class JuegoQQSM{
         if(ListaPregRes.Count == 0)
         {
             //Asumimos que ya que estamos aca, el juego no termino. PERO, se acabaron las preguntas de esta dificultad. Cargar siguiente dificultad.
-            DificultadActual++;
+            DificultadActual = 1; //Para poder testear el programa
             obtenerIdPreguntasxDif(DificultadActual);
         }
         Random rnd = new Random();
-        int idPregunta = ListaPregRes[rnd.Next(0, ListaPregRes.Count)];
+        int idPregunta = ListaPregRes[rnd.Next() % ListaPregRes.Count];
         PreguntaActual = idPregunta;
         ListaPregRes.Remove(idPregunta);
 
@@ -83,6 +97,7 @@ static class JuegoQQSM{
     
     public static List<char> descartar50(){
         if(!Player.Comodin50) return (List<char>)null;
+        Player.Comodin50 = false;
         using(SqlConnection db = new SqlConnection(_connectionString)){
             string sp = "descartar50";
             int num = db.Execute(sp, new {idJug = Player.IdJugador}, commandType: CommandType.StoredProcedure);
@@ -111,12 +126,17 @@ static class JuegoQQSM{
     public static void SaltearPregunta(){
         if(!Player.ComodinSaltear) return;
         /*FALTA EL SP*/
+        Player.ComodinSaltear = false;
         using(SqlConnection db = new SqlConnection(_connectionString)){
             string sp = "SaltearPregunta";
             int num = db.Execute(sp, new {idJug = Player.IdJugador}, commandType: CommandType.StoredProcedure);
         }
         obtenerProximaPregunta();
         return;
+    }
+
+    public static Jugador DevolverJugador(){
+        return Player;
     }
 
     
