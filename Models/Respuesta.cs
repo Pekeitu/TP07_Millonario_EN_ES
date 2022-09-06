@@ -2,9 +2,9 @@ namespace TP7.Models;
 
 public class Respuesta{
     public int idRespuesta{get; set;}
-    public int idPregunta{get;}
-    public char opcionRespuesta{get;}
-    public string txtRespuesta{get;}
+    public int idPregunta{get; set;}
+    public char opcionRespuesta{get;set;}
+    public string txtRespuesta{get;set;}
     public bool correcta{get;set;}
     
     public Respuesta(){

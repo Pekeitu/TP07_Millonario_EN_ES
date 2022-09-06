@@ -16,3 +16,18 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+.d-flex {
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+#TextoPregunta {
+  background: linear-gradient(138deg, rgba(126,121,204,1) 0%, rgba(210,115,115,1) 51%, rgba(77,162,96,1) 100%);
+}

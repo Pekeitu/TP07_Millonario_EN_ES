@@ -28,14 +28,29 @@ public class HomeController : Controller
     {
         //Si el jugador no existe, lo creamos en la base de datos
         Jugador jug = JuegoQQSM.BuscarJugador(nombre);
-        if(jug != null) ViewBag.Preexistente = true;
+        bool preexistente = false;
+        if(jug != null) preexistente = true;
         else { JuegoQQSM.IniciarJuego(nombre); jug = JuegoQQSM.BuscarJugador(nombre); }
-        ViewBag.NombreJugador = jug.Nombre;
         
+        return Redirect(Url.Action("CargarPagina", "Home", new {preexistente}));
+    }
+
+    public IActionResult CargarPagina(bool preexistente)
+    {
+        ViewBag.Preexistente = preexistente;
         ViewBag.Pregunta = JuegoQQSM.obtenerProximaPregunta();
         ViewBag.Respuestas = JuegoQQSM.obtenerRespuesta();
         ViewBag.ListaPozo = JuegoQQSM.ListarPozo();
         return View("Pregunta");
+    }
+
+    [HttpPost]
+    public JsonResult CargarSiguientePreguntaAjax() //returns true on game end.
+    {
+        ViewBag.Pregunta = JuegoQQSM.obtenerProximaPregunta();
+        ViewBag.Respuestas = JuegoQQSM.obtenerRespuesta();
+        ViewBag.ListaPozo = JuegoQQSM.ListarPozo();
+        return Json(ViewBag.Pregunta == null);
     }
 
     [HttpPost]
@@ -48,11 +63,11 @@ public class HomeController : Controller
         return;
     }
 
-    /*[HttpPost]
-    public IActionResult PreguntaRespondida(char Opcion1, char Opcion2){
-
+    [HttpPost]
+    public JsonResult comprobarRespuesta(char Opcion){ //Llamado x ajax
+        return Json(JuegoQQSM.obtenerRespuesaCorrecta() == Opcion);
     }
-        */
+
     public IActionResult Privacy()
     {
         return View();
