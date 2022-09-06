@@ -16,7 +16,7 @@ static class JuegoQQSM{
     private static List<int> ListaPregRes = new List<int>();
     private static int DificultadActual;
 
-    private static string _connectionString = @"Server=DESKTOP-78D5FAT\SQLEXPRESS;DataBase=JuegoQQSM;Trusted_Connection=True;";
+    private static string _connectionString = @"Server=A-PHZ2-CIDI-032;DataBase=JuegoQQSM;Trusted_Connection=True;";
 
     public static void IniciarJuego(string Nombre){
         DificultadActual = 0;

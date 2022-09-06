@@ -64,10 +64,8 @@
     <script>
         function modalPreexistente()
         {
-            var Preexistente = '@ViewBag.Preexistente';
-            if(!Preexistente) return;
-
-            @ViewBag.Preexistente = false;
+            var Preexistente = '@ViewBag.preexistente';
+            if(Preexistente == "False") return;
 
             var myModal = new bootstrap.Modal(document.getElementById('Preexistente'), {
                 keyboard: false
@@ -109,10 +107,16 @@
                                 data: { },
                                 success:
                                     function (response) {
+                                        alert("kek");
+                                        alert(response);
+                                        alert(JSON.stringify(response.Pregunta));
+                                        document.getElementById('TextoPregunta').innerText = response.Pregunta.txtPregunta;
                                     }
                             })
+                        } else {
+                            alert("SOS TREMENDO PETE");
+                            return;
                         }
-                        //if(data == false)
                     }
             })
         }
