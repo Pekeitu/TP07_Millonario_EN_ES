@@ -32,23 +32,35 @@ public class HomeController : Controller
         if(jug != null) preexistente = true;
         else { JuegoQQSM.IniciarJuego(nombre); jug = JuegoQQSM.BuscarJugador(nombre); }
         
-        return Redirect(Url.Action("CargarPagina", "Home", new {preexistente}));
+        return Redirect(Url.Action("CargarPagina", "Home", new {preexistente, nombre}));
     }
 
-    public IActionResult CargarPagina(bool preexistente)
+    //Se pasa pregunta por parametro, para que no se pueda avanzar preguntas recargando la pagina
+    public IActionResult CargarPagina(bool preexistente, string nombre)
     {
+        ViewBag.Nombre = nombre;
         ViewBag.Preexistente = preexistente;
         ViewBag.Pregunta = JuegoQQSM.obtenerProximaPregunta();
         ViewBag.Respuestas = JuegoQQSM.obtenerRespuesta();
         ViewBag.ListaPozo = JuegoQQSM.ListarPozo();
-        ViewBag.PosPozo = JuegoQQSM.devolverPosicionPozo();
+        ViewBag.PosPozo = JuegoQQSM.devolverPosicionPozo()-1;
         return View("Pregunta");
     }
 
     [HttpPost]
     public JsonResult CargarSiguientePreguntaAjax() //returns true on game end.
     {
-        return Json(new {Pregunta = JuegoQQSM.obtenerProximaPregunta(), Respuestas = JuegoQQSM.obtenerRespuesta()});
+        //PosPozo devuelve la posicion de la pregunta que acaba de ser respondida
+        //PozoSeguro devuelve si la ultima pregunta respondida era una segura
+        //el resto es sobre la nueva pregunta
+        return Json(new {PosPozo = JuegoQQSM.devolverPosicionPozo()-1, PozoSeguro = JuegoQQSM.ListarPozo()[JuegoQQSM.devolverPosicionPozo()-1].valorSeguro, Pregunta = JuegoQQSM.obtenerProximaPregunta(), Respuestas = JuegoQQSM.obtenerRespuesta()});
+    }
+
+    [HttpPost]
+    public JsonResult GuardarJugadorAjax()
+    {
+        int q = JuegoQQSM.ActualizarJugadorSobreSeguro(JuegoQQSM.devolverPosicionPozo()-1);
+        return Json(q);
     }
 
     [HttpPost]
@@ -57,13 +69,19 @@ public class HomeController : Controller
         string nom = JuegoQQSM.DevolverJugador().Nombre;
         Jugador newJug = new Jugador();
         newJug.Nombre = nom;
-        JuegoQQSM.UpdateJugador(newJug);
+        JuegoQQSM.UpdateJugador();
         return;
     }
 
     [HttpPost]
     public JsonResult comprobarRespuesta(char Opcion){ //Llamado x ajax
-        return Json(JuegoQQSM.obtenerRespuesaCorrecta() == Opcion);
+        return Json(JuegoQQSM.comprobarRespuesta(Opcion));
+    }
+    public IActionResult PantallaFinDelJuego(){
+        Jugador jug = JuegoQQSM.DevolverJugador();
+        ViewBag.Pozo = jug.PozoGanado;
+        ViewBag.Nombre = jug.Nombre;
+        return View();
     }
 
     public IActionResult Privacy()

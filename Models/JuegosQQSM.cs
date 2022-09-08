@@ -8,15 +8,15 @@ static class JuegoQQSM{
     private static int PreguntaActual;
     private static char RespuestaCorrectaActual;
     private static int PosicionPozo;
-    private static int PozoAcumuladoSeguro;
+    private static int PozoAcumuladoSeguro = 0;
     private static int PozoAcumulado;
-    //private static bool Comodin5050=true, ComodinDobleChance=true, ComodinSaltearPregunta=true;
     private static List<Pozo> ListaPozo = new List<Pozo>() {new Pozo(100, false), new Pozo(250, false), new Pozo(500, false), new Pozo(1000, true), new Pozo(2000, false), new Pozo(3500, false), new Pozo(5000, false), new Pozo(10000, true), new Pozo(25000, false), new Pozo(50000, false), new Pozo(100000, false), new Pozo(250000, true), new Pozo(500000, false), new Pozo(1000000, false), new Pozo(2500000, true)};
     private static Jugador Player;
     private static List<int> ListaPregRes = new List<int>();
     private static int DificultadActual;
+    private static bool PreguntaActualRespondida;
 
-    private static string _connectionString = @"Server=DESKTOP-78D5FAT\SQLEXPRESS;DataBase=JuegoQQSM;Trusted_Connection=True;";
+    private static string _connectionString = @"Server=A-PHZ2-CIDI-040;DataBase=JuegoQQSM;Trusted_Connection=True;";
 
     public static void IniciarJuego(string Nombre){
         DificultadActual = 0;
@@ -30,13 +30,21 @@ static class JuegoQQSM{
         }
     }
 
-    public static Jugador UpdateJugador(Jugador jug){
-        Player = jug;
-        //Seguir
+    public static void UpdateJugador(){
         using(SqlConnection db = new SqlConnection(_connectionString)){
             string sp = "UpdateJugador";
-            return db.QueryFirstOrDefault<Jugador>(sp, new {Nombre = jug.Nombre}, commandType: CommandType.StoredProcedure);
+            db.Execute(sp, new { Player }, commandType: CommandType.StoredProcedure);
         }
+        return;
+    }
+
+    public static int ActualizarJugadorSobreSeguro(int PosPozo)
+    {
+        PozoAcumuladoSeguro = PosPozo;
+        return ListaPozo[PosPozo].importe;
+        Player.PozoGanado = ListaPozo[PosPozo].importe;
+        UpdateJugador();
+        //return;
     }
 
     public static Jugador BuscarJugador(string nom) {
@@ -57,6 +65,14 @@ static class JuegoQQSM{
         return;
     }
 
+    private static Pregunta buscarPreguntaxId(int id)
+    {
+        using(SqlConnection db = new SqlConnection(_connectionString)){
+            string sp = "obtenerProximaPregunta";
+            return db.QueryFirstOrDefault<Pregunta>(sp, new {IdPregunta = id}, commandType: CommandType.StoredProcedure);
+        }
+    }
+
     public static Pregunta obtenerProximaPregunta(){
         if(ListaPregRes.Count == 0)
         {
@@ -64,16 +80,21 @@ static class JuegoQQSM{
             DificultadActual++; //Para poder testear el programa
             obtenerIdPreguntasxDif(DificultadActual);
         }
+
+        if(ListaPregRes.Count == 0) return (Pregunta)null;
+        if(PosicionPozo > 0 && !PreguntaActualRespondida) return buscarPreguntaxId(PreguntaActual);
+
+        PreguntaActualRespondida = false;
+
+        PosicionPozo++;
+
         Random rnd = new Random();
         int idPregunta = ListaPregRes[rnd.Next() % ListaPregRes.Count];
         PreguntaActual = idPregunta;
         ListaPregRes.Remove(idPregunta);
 
         /*Modificar SP*/
-        using(SqlConnection db = new SqlConnection(_connectionString)){
-            string sp = "obtenerProximaPregunta";
-            return db.QueryFirstOrDefault<Pregunta>(sp, new {IdPregunta = idPregunta}, commandType: CommandType.StoredProcedure);
-        }
+        return buscarPreguntaxId(idPregunta);
     }
 
     public static List<Respuesta> obtenerRespuesta(){
@@ -86,9 +107,15 @@ static class JuegoQQSM{
         }
     }
 
-    public static char obtenerRespuesaCorrecta()
+    public static char obtenerRespuestaCorrecta()
     {
         return RespuestaCorrectaActual;
+    }
+
+    public static bool comprobarRespuesta(char Opcion)
+    {
+        if(obtenerRespuestaCorrecta() == Opcion) PreguntaActualRespondida = true;
+        return obtenerRespuestaCorrecta() == Opcion;
     }
 
     public static List<Pozo> ListarPozo(){
@@ -102,10 +129,11 @@ static class JuegoQQSM{
     public static List<char> descartar50(){
         if(!Player.Comodin50) return (List<char>)null;
         Player.Comodin50 = false;
-        using(SqlConnection db = new SqlConnection(_connectionString)){
+        UpdateJugador();
+        /*using(SqlConnection db = new SqlConnection(_connectionString)){
             string sp = "descartar50";
             int num = db.Execute(sp, new {idJug = Player.IdJugador}, commandType: CommandType.StoredProcedure);
-        }
+        }*/
 
         List<Respuesta> respuestasActuales = obtenerRespuesta();
         int totalBorrados = 0;
@@ -131,11 +159,18 @@ static class JuegoQQSM{
         if(!Player.ComodinSaltear) return;
         /*FALTA EL SP*/
         Player.ComodinSaltear = false;
+        UpdateJugador();
         using(SqlConnection db = new SqlConnection(_connectionString)){
             string sp = "SaltearPregunta";
             int num = db.Execute(sp, new {idJug = Player.IdJugador}, commandType: CommandType.StoredProcedure);
         }
         obtenerProximaPregunta();
+        return;
+    }
+
+    public static void ComodinDobleChance() {
+        //hacer
+        UpdateJugador();
         return;
     }
 

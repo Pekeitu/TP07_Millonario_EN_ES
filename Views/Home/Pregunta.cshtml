@@ -17,6 +17,24 @@
         </div>
     </div>
 
+    <!-- Modal para comprobar si el jugador ya existia previamente, y confirmar si se quiere recargar el usuario o empezar de cero -->
+    <div class="modal" tabindex="-1" role="dialog" id="LugarSeguro">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Notificacion</h5>
+                </div>
+                <div class="modal-body">
+                    <p>Has llegado al lugar seguro. Deseas continuar o retirate?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Continuar</button>
+                    <button type="button" class="btn btn-secondary" onclick="finalizarJuego()" data-bs-dismiss="modal">Retirarme</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Fondo-->
     <img class="position-absolute fixed-top start-0 vw-100 vh-100" style="z-index: -1;" id="fondo" src="https://fotografias.antena3.com/clipping/cmsimages02/2020/01/10/ABE9B428-C9D0-4676-80E0-D1E512848828/57.jpg">
 
     <div id="LogoYPregunta" class="vh-100 d-inline-flex flex-column justify-content-center align-items-center">
@@ -44,7 +62,7 @@
             }
         </div>
     </div>
-
+    <!-- Pozo-->
     <div class="vh-100 d-inline-flex flex-column justify-content-center align-items-center float-right bg-transparent">
         @for(int i = 0; i < @ViewBag.ListaPozo.Count; i++)
         {
@@ -54,11 +72,11 @@
                     @ViewBag.ListaPozo[i].importe
                 </div>
             } else if(@ViewBag.ListaPozo[i].valorSeguro) {
-                <div id="entradaPozo-@i" value=@ViewBag.ListaPozo[i].valorSeguro class="container bg-warning rounded-pill mb-1 text-center">
+                <div id="entradaPozo-@i" value=@ViewBag.ListaPozo[i].valorSeguro class="container bg-primary rounded-pill mb-1 text-center">
                     @ViewBag.ListaPozo[i].importe
                 </div>
             } else {
-                <div id="entradaPozo-@i" value=@ViewBag.ListaPozo[i].valorSeguro class="container bg-info rounded-pill mb-1 text-center">
+                <div id="entradaPozo-@i" value=@ViewBag.ListaPozo[i].valorSeguro class="container bg-secondary rounded-pill mb-1 text-center">
                     @ViewBag.ListaPozo[i].importe
                 </div>
             }
@@ -106,21 +124,48 @@
                         {
                             $.ajax({
                                 type: 'POST',
-                                dataType: "JSON",
                                 url: '@Url.Action("CargarSiguientePreguntaAjax", "Home")',
-                                data: { },
                                 success:
                                     function (response) {
+                                        console.log(response);
+
+                                        if(response.pozoSeguro == true)
+                                        {
+                                            $.ajax({
+                                                type: 'POST',
+                                                url: '@Url.Action("GuardarJugadorAjax", "Home")',
+                                                success:
+                                                    function(response) {
+                                                        console.log(response);
+                                                        return;
+                                                    }
+                                            })
+
+                                            var myModal = new bootstrap.Modal(document.getElementById('LugarSeguro'), {
+                                                keyboard: false
+                                            });
+
+                                            myModal.show();
+                                        }
+
+                                        if(response.pregunta == null) finalizarJuego();
+
                                         document.getElementById('TextoPregunta').innerText = response.pregunta.txtPregunta;
 
                                         //Randomizar el orden de las respuestas porque... porque no?
                                         shuffle(response.respuestas);
                                         for(var i = 0; i < response.respuestas.length; i++)
                                         {
-                                            var search = "opcionRespuesta-".concat(i.toString());
-                                            document.getElementById(search).innerHTML = String.fromCharCode(65 + i) + ". " + response.respuestas[i].txtRespuesta;
-                                            document.getElementById(search).value = response.respuestas[i].opcionRespuesta;
+                                            var searchButton = "opcionRespuesta-".concat(i.toString());
+                                            document.getElementById(searchButton).innerHTML = String.fromCharCode(65 + i) + ". " + response.respuestas[i].txtRespuesta;
+                                            document.getElementById(searchButton).value = response.respuestas[i].opcionRespuesta;
                                         }
+
+                                        var searchPozo = "entradaPozo-".concat(response.posPozo.toString());
+                                        var elementoPozo = document.getElementById(searchPozo);
+                                        if(elementoPozo.classList.contains('bg-primary')) elementoPozo.classList.remove('bg-primary');
+                                        else if(elementoPozo.classList.contains('bg-secondary')) elementoPozo.classList.remove('bg-secondary');
+                                        elementoPozo.classList.add('bg-success');
                                     }
                             })
                         } else {
@@ -129,6 +174,10 @@
                         }
                     }
             })
+        }
+
+        function finalizarJuego(){
+            window.location = '@Url.Action("PantallaFinDelJuego", "Home")';
         }
 
         //Creditos: https://stackoverflow.com/questions/6274339/how-can-i-shuffle-an-array

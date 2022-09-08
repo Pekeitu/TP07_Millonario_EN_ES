@@ -13,7 +13,7 @@ public class Jugador{
         IdJugador= 0;
         Nombre="";
         FechaHora=DateTime.Now;
-        PozoGanado=0;
+        PozoGanado=-1;
         ComodinDobleChance=true;
         Comodin50=true;
         ComodinSaltear=true;
