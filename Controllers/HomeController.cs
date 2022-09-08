@@ -41,18 +41,14 @@ public class HomeController : Controller
         ViewBag.Pregunta = JuegoQQSM.obtenerProximaPregunta();
         ViewBag.Respuestas = JuegoQQSM.obtenerRespuesta();
         ViewBag.ListaPozo = JuegoQQSM.ListarPozo();
+        ViewBag.PosPozo = JuegoQQSM.devolverPosicionPozo();
         return View("Pregunta");
     }
 
     [HttpPost]
     public JsonResult CargarSiguientePreguntaAjax() //returns true on game end.
     {
-        /*ViewBag.Pregunta = JuegoQQSM.obtenerProximaPregunta();
-        ViewBag.Respuestas = JuegoQQSM.obtenerRespuesta();
-        ViewBag.ListaPozo = JuegoQQSM.ListarPozo();*/
-        //return Json(new {Pregunta = JuegoQQSM.obtenerProximaPregunta(), Respuestas = JuegoQQSM.obtenerRespuesta(), ListaPozo = JuegoQQSM.ListarPozo()});
-        var r = new {Pregunta = JuegoQQSM.obtenerProximaPregunta()};
-        return Json(new { Pregunta = r });
+        return Json(new {Pregunta = JuegoQQSM.obtenerProximaPregunta(), Respuestas = JuegoQQSM.obtenerRespuesta()});
     }
 
     [HttpPost]

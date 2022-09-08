@@ -37,7 +37,7 @@
                 }
 
                 <div class="d-flex col justify-content-center">
-                    <button class="w-100 btn btn-info text-center" value=@ViewBag.Respuestas[i].opcionRespuesta onclick="checkRespuesta(this.value)">
+                    <button id="opcionRespuesta-@i" class="w-100 btn btn-info text-center" value=@ViewBag.Respuestas[i].opcionRespuesta onclick="checkRespuesta(this.value)">
                         @ViewBag.Respuestas[i].opcionRespuesta. @ViewBag.Respuestas[i].txtRespuesta
                     </button>
                 </div>
@@ -46,16 +46,20 @@
     </div>
 
     <div class="vh-100 d-inline-flex flex-column justify-content-center align-items-center float-right bg-transparent">
-        @foreach(Pozo x in @ViewBag.ListaPozo)
+        @for(int i = 0; i < @ViewBag.ListaPozo.Count; i++)
         {
-            @if(x.valorSeguro)
+            @if(i < @ViewBag.PosPozo)
             {
-                <div id="entradaPozo" value=@x.valorSeguro class="container bg-warning rounded-pill mb-1 text-center">
-                    @x.importe
+                <div id="entradaPozo-@i" value=@ViewBag.ListaPozo[i].valorSeguro class="container bg-success rounded-pill mb-1 text-center">
+                    @ViewBag.ListaPozo[i].importe
+                </div>
+            } else if(@ViewBag.ListaPozo[i].valorSeguro) {
+                <div id="entradaPozo-@i" value=@ViewBag.ListaPozo[i].valorSeguro class="container bg-warning rounded-pill mb-1 text-center">
+                    @ViewBag.ListaPozo[i].importe
                 </div>
             } else {
-                <div id="entradaPozo" value=@x.valorSeguro class="container bg-info rounded-pill mb-1 text-center">
-                    @x.importe
+                <div id="entradaPozo-@i" value=@ViewBag.ListaPozo[i].valorSeguro class="container bg-info rounded-pill mb-1 text-center">
+                    @ViewBag.ListaPozo[i].importe
                 </div>
             }
         }
@@ -107,10 +111,16 @@
                                 data: { },
                                 success:
                                     function (response) {
-                                        alert("kek");
-                                        alert(response);
-                                        alert(JSON.stringify(response.Pregunta));
-                                        document.getElementById('TextoPregunta').innerText = response.Pregunta.txtPregunta;
+                                        document.getElementById('TextoPregunta').innerText = response.pregunta.txtPregunta;
+
+                                        //Randomizar el orden de las respuestas porque... porque no?
+                                        shuffle(response.respuestas);
+                                        for(var i = 0; i < response.respuestas.length; i++)
+                                        {
+                                            var search = "opcionRespuesta-".concat(i.toString());
+                                            document.getElementById(search).innerHTML = String.fromCharCode(65 + i) + ". " + response.respuestas[i].txtRespuesta;
+                                            document.getElementById(search).value = response.respuestas[i].opcionRespuesta;
+                                        }
                                     }
                             })
                         } else {
@@ -119,6 +129,18 @@
                         }
                     }
             })
+        }
+
+        //Creditos: https://stackoverflow.com/questions/6274339/how-can-i-shuffle-an-array
+        function shuffle(a) {
+            var j, x, i;
+            for (i = a.length - 1; i > 0; i--) {
+                j = Math.floor(Math.random() * (i + 1));
+                x = a[i];
+                a[i] = a[j];
+                a[j] = x;
+            }
+            return a;
         }
     </script>
 </body>

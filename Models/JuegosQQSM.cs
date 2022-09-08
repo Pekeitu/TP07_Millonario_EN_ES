@@ -16,7 +16,7 @@ static class JuegoQQSM{
     private static List<int> ListaPregRes = new List<int>();
     private static int DificultadActual;
 
-    private static string _connectionString = @"Server=A-PHZ2-CIDI-032;DataBase=JuegoQQSM;Trusted_Connection=True;";
+    private static string _connectionString = @"Server=DESKTOP-78D5FAT\SQLEXPRESS;DataBase=JuegoQQSM;Trusted_Connection=True;";
 
     public static void IniciarJuego(string Nombre){
         DificultadActual = 0;
@@ -61,7 +61,7 @@ static class JuegoQQSM{
         if(ListaPregRes.Count == 0)
         {
             //Asumimos que ya que estamos aca, el juego no termino. PERO, se acabaron las preguntas de esta dificultad. Cargar siguiente dificultad.
-            DificultadActual = 1; //Para poder testear el programa
+            DificultadActual++; //Para poder testear el programa
             obtenerIdPreguntasxDif(DificultadActual);
         }
         Random rnd = new Random();
