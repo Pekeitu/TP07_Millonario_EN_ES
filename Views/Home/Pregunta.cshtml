@@ -1,35 +1,14 @@
-<body onload="modalPreexistente()">
-    <!-- Modal para comprobar si el jugador ya existia previamente, y confirmar si se quiere recargar el usuario o empezar de cero -->
-    <div class="modal" tabindex="-1" role="dialog" id="Preexistente">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Notificacion</h5>
-                </div>
-                <div class="modal-body">
-                    <p>Se ha encontrado un jugador que previamente tenia el mismo nombre. Desea mantener los datos precargados o prefiere reiniciar la partida?</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Mantener actual</button>
-                    <button type="button" class="btn btn-secondary" onclick="ReiniciarJugador()" data-bs-dismiss="modal">Reiniciar partida</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
+<body>
     <!-- Modal para comprobar si el jugador ya existia previamente, y confirmar si se quiere recargar el usuario o empezar de cero -->
     <div class="modal" tabindex="-1" role="dialog" id="LugarSeguro">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Notificacion</h5>
-                </div>
                 <div class="modal-body">
-                    <p>Has llegado al lugar seguro. Deseas continuar o retirate?</p>
+                    <p>Has respondido la pregunta segura. Deseas retirarte?</p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Continuar</button>
-                    <button type="button" class="btn btn-secondary" onclick="finalizarJuego()" data-bs-dismiss="modal">Retirarme</button>
+                    <button type="button" class="btn btn-secondary" onclick="finalizarJuego(true)" data-bs-dismiss="modal">Retirarme</button>
                 </div>
             </div>
         </div>
@@ -61,55 +40,49 @@
                 </div>
             }
         </div>
+
+        <div class="d-flex justify-content-center align-items-center mt-5 pt-3">
+            <button class="ml-2" onclick="comodin50()">
+
+            </button>
+
+            <button class="ml-2" onclick="comodinDobleChance()">
+
+            </button>
+
+            <button onclick="comodinSaltear()">
+
+            </button>
+        </div>
+
     </div>
     <!-- Pozo-->
     <div class="vh-100 d-inline-flex flex-column justify-content-center align-items-center float-right bg-transparent">
         @for(int i = 0; i < @ViewBag.ListaPozo.Count; i++)
         {
-            @if(i < @ViewBag.PosPozo)
+            /* Posta que me encantaria extrapolar los colores a una funcion en js o algo del estilo para no tener que repetir como tremendo hdp */
+            /* pero no se me ocurre como hacerlo, y todavia tengo que terminar comodines y qcy. quizas despues lo piense un rato mas*/
+            @if(i == @ViewBag.PosPozo)
             {
-                <div id="entradaPozo-@i" value=@ViewBag.ListaPozo[i].valorSeguro class="container bg-success rounded-pill mb-1 text-center">
+                <div id="entradaPozo-@i" class="entradaPozo container bg-warning rounded-pill mb-1 text-center">
+                    @ViewBag.ListaPozo[i].importe
+                </div>
+            } else if(i < @ViewBag.PosPozo) {
+                <div id="entradaPozo-@i" class="entradaPozo container bg-success rounded-pill mb-1 text-center">
                     @ViewBag.ListaPozo[i].importe
                 </div>
             } else if(@ViewBag.ListaPozo[i].valorSeguro) {
-                <div id="entradaPozo-@i" value=@ViewBag.ListaPozo[i].valorSeguro class="container bg-primary rounded-pill mb-1 text-center">
+                <div id="entradaPozo-@i" class="entradaPozo container bg-primary rounded-pill mb-1 text-center">
                     @ViewBag.ListaPozo[i].importe
                 </div>
             } else {
-                <div id="entradaPozo-@i" value=@ViewBag.ListaPozo[i].valorSeguro class="container bg-secondary rounded-pill mb-1 text-center">
+                <div id="entradaPozo-@i" class="entradaPozo container bg-light rounded-pill mb-1 text-center">
                     @ViewBag.ListaPozo[i].importe
                 </div>
             }
         }
     </div>
-
     <script>
-        function modalPreexistente()
-        {
-            var Preexistente = '@ViewBag.preexistente';
-            if(Preexistente == "False") return;
-
-            var myModal = new bootstrap.Modal(document.getElementById('Preexistente'), {
-                keyboard: false
-            });
-
-            myModal.show();
-        }
-
-        function ReiniciarJugador()
-        {
-            //AJAX al action ReiniciarJugador
-            $.ajax({
-                type: 'POST',
-                dataType: "JSON",
-                url: '@Url.Action("ReiniciarJugador", "Home")',
-                data: { },
-                success:
-                    function () {
-                    }
-            })
-        }
-
         function checkRespuesta(value)
         {
             //AJAX al action comprobarRespuesta
@@ -120,64 +93,75 @@
                 data: { Opcion: value },
                 success:
                     function (data) {
-                        if(data)
-                        {
-                            $.ajax({
-                                type: 'POST',
-                                url: '@Url.Action("CargarSiguientePreguntaAjax", "Home")',
-                                success:
-                                    function (response) {
-                                        console.log(response);
-
-                                        if(response.pozoSeguro == true)
-                                        {
-                                            $.ajax({
-                                                type: 'POST',
-                                                url: '@Url.Action("GuardarJugadorAjax", "Home")',
-                                                success:
-                                                    function(response) {
-                                                        console.log(response);
-                                                        return;
-                                                    }
-                                            })
-
-                                            var myModal = new bootstrap.Modal(document.getElementById('LugarSeguro'), {
-                                                keyboard: false
-                                            });
-
-                                            myModal.show();
-                                        }
-
-                                        if(response.pregunta == null) finalizarJuego();
-
-                                        document.getElementById('TextoPregunta').innerText = response.pregunta.txtPregunta;
-
-                                        //Randomizar el orden de las respuestas porque... porque no?
-                                        shuffle(response.respuestas);
-                                        for(var i = 0; i < response.respuestas.length; i++)
-                                        {
-                                            var searchButton = "opcionRespuesta-".concat(i.toString());
-                                            document.getElementById(searchButton).innerHTML = String.fromCharCode(65 + i) + ". " + response.respuestas[i].txtRespuesta;
-                                            document.getElementById(searchButton).value = response.respuestas[i].opcionRespuesta;
-                                        }
-
-                                        var searchPozo = "entradaPozo-".concat(response.posPozo.toString());
-                                        var elementoPozo = document.getElementById(searchPozo);
-                                        if(elementoPozo.classList.contains('bg-primary')) elementoPozo.classList.remove('bg-primary');
-                                        else if(elementoPozo.classList.contains('bg-secondary')) elementoPozo.classList.remove('bg-secondary');
-                                        elementoPozo.classList.add('bg-success');
-                                    }
-                            })
-                        } else {
-                            alert("SOS TREMENDO PETE");
-                            return;
-                        }
+                        if(data.correcta) cargarSiguientePregunta(data);
+                        else finalizarJuego(false);
                     }
             })
         }
 
-        function finalizarJuego(){
+        function cargarSiguientePregunta(data) {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("CargarSiguientePreguntaAjax", "Home")',
+                success:
+                    function (response) {
+                        if(response.pregunta == null)
+                        {
+                            finalizarJuego(true);
+                            return;
+                        }
+
+                        if(data.pozoSeguro == true)
+                        {
+                            var myModal = new bootstrap.Modal(document.getElementById('LugarSeguro'), {
+                                keyboard: false
+                            });
+
+                            myModal.show();
+                        }
+
+                        document.getElementById('TextoPregunta').innerText = response.pregunta.txtPregunta;
+
+                        //Randomizar el orden de las respuestas porque... porque no?
+                        shuffle(response.respuestas);
+                        for(var i = 0; i < response.respuestas.length; i++)
+                        {
+                            var searchButton = "opcionRespuesta-".concat(i.toString());
+                            document.getElementById(searchButton).innerHTML = String.fromCharCode(65 + i) + ". " + response.respuestas[i].txtRespuesta;
+                            document.getElementById(searchButton).value = response.respuestas[i].opcionRespuesta;
+                        }
+
+                        //Poner la entrada actual con color verde 
+                        var searchPozo = "entradaPozo-".concat(response.posPozo.toString());
+                        var elementoPozo = document.getElementById(searchPozo);
+                        elementoPozo.classList.remove('entradaPozo');
+                        elementoPozo.classList.remove('bg-warning');
+                        elementoPozo.classList.add('bg-success');
+
+                        //Poner la proxima entrada con color naranja
+                        searchPozo = "entradaPozo-".concat((response.posPozo + 1).toString());
+                        elementoPozo = document.getElementById(searchPozo);
+                        if(elementoPozo.classList.contains('bg-primary')) elementoPozo.classList.remove('bg-primary');
+                        else if(elementoPozo.classList.contains('bg-light')) elementoPozo.classList.remove('bg-light');
+                        elementoPozo.classList.add('bg-warning');
+                    }
+            })
+        }
+
+        function finalizarJuego(exitOnWin){
+            if(exitOnWin)
+            {
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("GuardarJugadorAjax", "Home")',
+                    success:
+                        function(response) {
+                            return;
+                        }
+                })
+            }
             window.location = '@Url.Action("PantallaFinDelJuego", "Home")';
+            
         }
 
         //Creditos: https://stackoverflow.com/questions/6274339/how-can-i-shuffle-an-array

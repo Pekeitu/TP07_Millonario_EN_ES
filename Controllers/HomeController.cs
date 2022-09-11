@@ -18,32 +18,21 @@ public class HomeController : Controller
         return View();
     }
 
-    public IActionResult Player()
-    {
-        return View();
-    }
-
     [HttpPost]
     public IActionResult IniciarJuego(string nombre)
     {
-        //Si el jugador no existe, lo creamos en la base de datos
-        Jugador jug = JuegoQQSM.BuscarJugador(nombre);
-        bool preexistente = false;
-        if(jug != null) preexistente = true;
-        else { JuegoQQSM.IniciarJuego(nombre); jug = JuegoQQSM.BuscarJugador(nombre); }
-        
-        return Redirect(Url.Action("CargarPagina", "Home", new {preexistente, nombre}));
+        JuegoQQSM.IniciarJuego(nombre);
+        return Redirect(Url.Action("CargarPagina", "Home", new {nombre}));
     }
 
     //Se pasa pregunta por parametro, para que no se pueda avanzar preguntas recargando la pagina
-    public IActionResult CargarPagina(bool preexistente, string nombre)
+    public IActionResult CargarPagina(string nombre)
     {
         ViewBag.Nombre = nombre;
-        ViewBag.Preexistente = preexistente;
         ViewBag.Pregunta = JuegoQQSM.obtenerProximaPregunta();
         ViewBag.Respuestas = JuegoQQSM.obtenerRespuesta();
-        ViewBag.ListaPozo = JuegoQQSM.ListarPozo();
-        ViewBag.PosPozo = JuegoQQSM.devolverPosicionPozo()-1;
+        ViewBag.ListaPozo = JuegoQQSM.ListaPozo;
+        ViewBag.PosPozo = JuegoQQSM.PosicionPozo-1;
         return View("Pregunta");
     }
 
@@ -53,32 +42,23 @@ public class HomeController : Controller
         //PosPozo devuelve la posicion de la pregunta que acaba de ser respondida
         //PozoSeguro devuelve si la ultima pregunta respondida era una segura
         //el resto es sobre la nueva pregunta
-        return Json(new {PosPozo = JuegoQQSM.devolverPosicionPozo()-1, PozoSeguro = JuegoQQSM.ListarPozo()[JuegoQQSM.devolverPosicionPozo()-1].valorSeguro, Pregunta = JuegoQQSM.obtenerProximaPregunta(), Respuestas = JuegoQQSM.obtenerRespuesta()});
+        return Json(new {PosPozo = JuegoQQSM.PosicionPozo-1, PozoSeguro = JuegoQQSM.ListaPozo[JuegoQQSM.PosicionPozo-1].valorSeguro, Pregunta = JuegoQQSM.obtenerProximaPregunta(), Respuestas = JuegoQQSM.obtenerRespuesta()});
     }
 
     [HttpPost]
     public JsonResult GuardarJugadorAjax()
     {
-        int q = JuegoQQSM.ActualizarJugadorSobreSeguro(JuegoQQSM.devolverPosicionPozo()-1);
-        return Json(q);
-    }
-
-    [HttpPost]
-    public void ReiniciarJugador()
-    {
-        string nom = JuegoQQSM.DevolverJugador().Nombre;
-        Jugador newJug = new Jugador();
-        newJug.Nombre = nom;
-        JuegoQQSM.UpdateJugador();
-        return;
+        //Le restamos dos devido a que: Siempre que uno esta con una pregunta, posicion pozo apunta a la siguiente. Si a eso se le suma que antes de guardar sobre el pozo seguro, cargamos la siguiente pregunta, posicion pozo es +2 de lo que realmente queremos
+        JuegoQQSM.GuardarJugador(JuegoQQSM.PosicionPozo-2);
+        return Json(null);
     }
 
     [HttpPost]
     public JsonResult comprobarRespuesta(char Opcion){ //Llamado x ajax
-        return Json(JuegoQQSM.comprobarRespuesta(Opcion));
+        return Json(new {Correcta = JuegoQQSM.comprobarRespuesta(Opcion), PozoSeguro = JuegoQQSM.ListaPozo[JuegoQQSM.PosicionPozo-1].valorSeguro});
     }
     public IActionResult PantallaFinDelJuego(){
-        Jugador jug = JuegoQQSM.DevolverJugador();
+        Jugador jug = JuegoQQSM.Player;
         ViewBag.Pozo = jug.PozoGanado;
         ViewBag.Nombre = jug.Nombre;
         return View();

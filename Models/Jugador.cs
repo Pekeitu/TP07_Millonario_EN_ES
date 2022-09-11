@@ -13,11 +13,23 @@ public class Jugador{
         IdJugador= 0;
         Nombre="";
         FechaHora=DateTime.Now;
-        PozoGanado=-1;
+        PozoGanado=0;
         ComodinDobleChance=true;
         Comodin50=true;
         ComodinSaltear=true;
     }
+
+    public Jugador(Jugador jug)
+    {
+        IdJugador = jug.IdJugador;
+        Nombre = jug.Nombre;
+        FechaHora = jug.FechaHora;
+        PozoGanado = jug.PozoGanado;
+        ComodinDobleChance = jug.ComodinDobleChance;
+        Comodin50 = jug.Comodin50;
+        ComodinSaltear = jug.ComodinSaltear;
+    }
+
     public Jugador(int id, string nom, DateTime fec, int pozGan, bool comDC, bool Com50, bool ComSal){
         IdJugador= id;
         Nombre=nom;
