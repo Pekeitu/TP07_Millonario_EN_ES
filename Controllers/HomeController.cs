@@ -15,7 +15,14 @@ public class HomeController : Controller
 
     public IActionResult Index()
     {
+        ViewBag.Podio = JuegoQQSM.ListarPodio();
         return View();
+    }
+
+    public IActionResult ReiniciarPartida()
+    {
+        JuegoQQSM.ReiniciarPartida();
+        return RedirectToAction("Index", "Home");
     }
 
     [HttpPost]
@@ -57,6 +64,16 @@ public class HomeController : Controller
     public JsonResult comprobarRespuesta(char Opcion){ //Llamado x ajax
         return Json(new {Correcta = JuegoQQSM.comprobarRespuesta(Opcion), PozoSeguro = JuegoQQSM.ListaPozo[JuegoQQSM.PosicionPozo-1].valorSeguro});
     }
+
+    [HttpPost]
+    public JsonResult comodin(string type)
+    { 
+        if(type == "dc") return Json(JuegoQQSM.ComodinDobleChance());
+        if(type == "sp") return Json(new {saltearPosible = JuegoQQSM.SaltearPregunta(), PozoSeguro = JuegoQQSM.ListaPozo[JuegoQQSM.PosicionPozo-1].valorSeguro});
+        if(type == "50") return Json(JuegoQQSM.descartar50());
+        return Json(null);
+    }
+
     public IActionResult PantallaFinDelJuego(){
         Jugador jug = JuegoQQSM.Player;
         ViewBag.Pozo = jug.PozoGanado;

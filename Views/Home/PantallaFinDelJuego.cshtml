@@ -1,13 +1,23 @@
 <img class="position-absolute fixed-top start-0 vw-100 vh-100" style="z-index: -1;" id="fondo" src="https://fotografias.antena3.com/clipping/cmsimages02/2020/01/10/ABE9B428-C9D0-4676-80E0-D1E512848828/57.jpg">
 
-<div id="LogoYPregunta" class="vh-100 d-inline-flex flex-column justify-content-center align-items-center">
-    <img class="w-50 h-auto" style="margin-top: -5%" id="logoQQSM" src="/image/QQSMLogo.png">
+<div class="d-flex flex-column vh-100 justify-content-center align-items-center">
+    <img class="w-50 h-auto" style="margin-top: -8%" id="logoQQSM" src="/image/QQSMLogo.png">
 
-    <div class="pt-1 pb-1 pl-2 pr-2 mt-3 mb-3 text-center rounded-pill">
-        @ViewBag.Pozo
+    <div id="TextoPregunta" class="d-flex pl-2 pr-2 mt-3 mb-3 justify-content-center align-items-center text-center rounded-pill">
+        @if(@ViewBag.Pozo == 0)
+        {
+            <p>Que lastima, perdiste! Para la proxima vas a ser un millonario de verdad!</p>
+        } else {
+            <p>Felicidades, ganaste $@ViewBag.Pozo! Podes volver a jugar si asi lo deseas.</p>
+        }
     </div>
-    <!--<div class="d-inline-flex p-2" style="margin-top: -5%">
-        <img class="w-100 h-auto"   src="https://c.tenor.com/b6ymPWEJEAIAAAAd/cat-dance.gif">
+    
+    <a class="btn btn-success" href='@Url.Action("ReiniciarPartida", "Home")'>
+        Reiniciar!!
+    </a>
+
+    <!-- <div class="d-inline-flex p-2" style="margin-top: -5%">
+        <img src="https://c.tenor.com/b6ymPWEJEAIAAAAd/cat-dance.gif">
         <p>Felicitaciones por jugar @ViewBag.Nombre</p>
-    </div>-->
+    </div> -->
 </div>

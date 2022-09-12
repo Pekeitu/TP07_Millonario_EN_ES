@@ -24,6 +24,26 @@ static class JuegoQQSM{
         ListaPozo = new List<Pozo>() {new Pozo(100, false), new Pozo(250, false), new Pozo(500, false), new Pozo(1000, true), new Pozo(2000, false), new Pozo(3500, false), new Pozo(5000, false), new Pozo(10000, true), new Pozo(25000, false), new Pozo(50000, false), new Pozo(100000, false), new Pozo(250000, true), new Pozo(500000, false), new Pozo(1000000, false), new Pozo(2500000, true)};
     }
 
+    public static void ReiniciarPartida()
+    {
+        PreguntaActual = 0;
+        RespuestaCorrectaActual = '\0';
+        PosicionPozo = 0;
+        PozoAcumuladoSeguro = 0;
+        PreguntaActualRespondida = false;
+        //Dificultad actual, player y lista pozo seran reseteados en iniciar juego
+        return;
+    }
+
+    public static List<Jugador> ListarPodio()
+    {
+        using(SqlConnection db = new SqlConnection(_connectionString))
+        {
+            string sp = "ListarPodio";
+            return db.Query<Jugador>(sp, commandType: CommandType.StoredProcedure).ToList();
+        }
+    }
+
     public static void InsertarJugador()
     {
         using(SqlConnection db = new SqlConnection(_connectionString))
@@ -120,20 +140,22 @@ static class JuegoQQSM{
         List<char> ret = new List<char>();
         for(int i = 0; i < dpBorrados.Length; i++)
         {
-            if(dpBorrados[i]) ret.Add((char)((int)'A' + i)); 
+            if(dpBorrados[i]) ret.Add((char)(((int)'A') + i)); 
         }
         return ret;
     }
-    public static void SaltearPregunta(){
-        if(!Player.ComodinSaltear) return;
+    public static bool SaltearPregunta(){
+        if(!Player.ComodinSaltear) return false;
         Player.ComodinSaltear = false;
+        PreguntaActualRespondida = true;
 
-        obtenerProximaPregunta();
-        return;
+        return true;
     }
 
-    public static void ComodinDobleChance() {
-        //hacer
-        return;
+    public static bool ComodinDobleChance() {
+        if(!Player.ComodinDobleChance) return false;
+        Player.ComodinDobleChance = false;
+
+        return true;
     }
 }

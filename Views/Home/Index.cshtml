@@ -19,11 +19,6 @@
             <div class="col-auto">
                 <input type="text" name="nombre" class="form-control" aria-describedby="passwordHelpInline">
             </div>
-            <div class="col-auto">
-                <span id="passwordHelpInline" class="form-text">
-                Must be 8-20 characters long.
-                </span>
-            </div>
         </div>
         <div class="row pt-1 align-items-center">
             <div class="col-auto mx-auto">
@@ -31,6 +26,25 @@
             </div>
         </div>
     </form>
+
+    <div id="podio" class="d-none position-relative ml-5" style="display: flex; min-width: 10%; max-width: 30%;">
+        <div class="row bg-trasparent">
+            <div class="col bg-primary" style="max-width: 30%;">
+                Podio historico de jugadores:
+            </div>
+            <div class="w-100 mb-1"></div>
+            @foreach(Jugador jug in @ViewBag.Podio)
+            {
+                <div class="col rounded bg-light" style="max-width: 5%;">
+                    @jug.Nombre
+                </div>
+                <div class="col rounded text-center bg-light" style="max-width: 25%;">
+                    $@jug.PozoGanado
+                </div>
+                <div class="w-100 mb-1"></div>
+            }
+        </div>
+    </div>
 
     <script>
         function transicion()
@@ -42,6 +56,9 @@
                     $("#form").removeClass("d-none");
                     //$("#form").css("display", "inline-block");
                 });
+                $("#podio").fadeIn(250, function(){
+                    $("#podio").removeClass("d-none");
+                })
             });
         }
     </script>

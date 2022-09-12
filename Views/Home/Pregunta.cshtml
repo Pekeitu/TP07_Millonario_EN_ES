@@ -13,6 +13,21 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal para el doble chance -->
+    <div class="modal" tabindex="-1" role="dialog" id="DobleChanceActivado">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <p>Has seleccionado una respuesta incorrecta. Se ha activado el comodin doble chance.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Aceptar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Fondo-->
     <img class="position-absolute fixed-top start-0 vw-100 vh-100" style="z-index: -1;" id="fondo" src="https://fotografias.antena3.com/clipping/cmsimages02/2020/01/10/ABE9B428-C9D0-4676-80E0-D1E512848828/57.jpg">
 
@@ -42,16 +57,16 @@
         </div>
 
         <div class="d-flex justify-content-center align-items-center mt-5 pt-3">
-            <button class="ml-2" onclick="comodin50()">
-
+            <button class="mr-2 border-0 bg-transparent" onclick="comodin50()">
+                <img id="logoComodin50" style="background-color: transparent; height: 80px; width: 80px;" src="/image/Comodin50.png">
             </button>
 
-            <button class="ml-2" onclick="comodinDobleChance()">
-
+            <button class="mr-2 border-0 bg-transparent" onclick="comodinDobleChance(true)" disabled>
+                <img id="logoComodinDobleChance" style="height: 80px; width: 80px;" src="/image/ComodinDobleChance.png">
             </button>
 
-            <button onclick="comodinSaltear()">
-
+            <button class="border-0 bg-transparent" onclick="comodinSaltear()">
+                <img id="logoComodinSaltear" style="height: 80px; width: 80px;" src="/image/ComodinSaltear.png">
             </button>
         </div>
 
@@ -94,7 +109,11 @@
                 success:
                     function (data) {
                         if(data.correcta) cargarSiguientePregunta(data);
-                        else finalizarJuego(false);
+                        else
+                        {
+                            var resp = comodinDobleChance(false);
+                            if(resp == false) finalizarJuego(false);
+                        }
                     }
             })
         }
@@ -129,6 +148,7 @@
                             var searchButton = "opcionRespuesta-".concat(i.toString());
                             document.getElementById(searchButton).innerHTML = String.fromCharCode(65 + i) + ". " + response.respuestas[i].txtRespuesta;
                             document.getElementById(searchButton).value = response.respuestas[i].opcionRespuesta;
+                            document.getElementById(searchButton).disabled = false;
                         }
 
                         //Poner la entrada actual con color verde 
@@ -145,6 +165,79 @@
                         else if(elementoPozo.classList.contains('bg-light')) elementoPozo.classList.remove('bg-light');
                         elementoPozo.classList.add('bg-warning');
                     }
+            })
+        }
+
+        function comodin50()
+        {
+            document.getElementById('logoComodin50').src = "/image/Comodin50Usado.png";
+            $.ajax({
+                type: 'POST',
+                dataType: 'JSON',
+                url: '@Url.Action("comodin", "Home")',
+                data: { type: "50" },
+                success:
+                    function(response)
+                    {
+                        if(response == null) return;
+
+                        response.forEach(function(item, index){
+                            const opcionRespuesta = document.querySelector("button[value=" + item + "]");
+                            opcionRespuesta.disabled = true;
+                        });
+                    }
+            })
+        }
+
+        //Data: si el usuario voluntariamente toco doble chance o no
+        function comodinDobleChance(data)
+        {
+            document.getElementById('logoComodinDobleChance').src = "/image/ComodinDobleChanceUsado.png";
+
+            var retVal = false;
+            $.ajax({
+                type: 'POST',
+                dataType: 'JSON',
+                url: '@Url.Action("comodin", "Home")',
+                async : false,
+                data: { type: "dc" },
+                success:
+                    function(response)
+                    {
+                        if(response == null || response == false) { retVal = false; return; }
+                        if(data == false)
+                        {
+                            var myModal = new bootstrap.Modal(document.getElementById('DobleChanceActivado'), {
+                                keyboard: false
+                            });
+
+                            myModal.show();
+                        }
+                        retVal = true;
+                        return;
+                    }
+
+            })
+            return retVal;
+        }
+
+        function comodinSaltear()
+        {
+            document.getElementById('logoComodinSaltear').src = "/image/ComodinSaltearUsado.png";
+
+            $.ajax({
+                type: 'POST',
+                dataType: 'JSON',
+                url: '@Url.Action("comodin", "Home")',
+                data: { type: "sp" },
+                success:
+                    function(response)
+                    {
+                        if(response == null) return;
+                        if(response.saltearPosible == false) return;
+                        cargarSiguientePregunta(response);
+                    }
+
             })
         }
 
