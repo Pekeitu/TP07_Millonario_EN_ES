@@ -15,7 +15,7 @@ static class JuegoQQSM{
     private static int DificultadActual;
     private static bool PreguntaActualRespondida;
 
-    private static string _connectionString = @"Server=DESKTOP-78D5FAT\SQLEXPRESS;DataBase=JuegoQQSM;Trusted_Connection=True;";
+    private static string _connectionString = @"Server=DESKTOP-ON8F0P6\SQLEXPRESS;DataBase=JuegoQQSM;Trusted_Connection=True;";
 
     public static void IniciarJuego(string Nombre){
         DificultadActual = 0;
